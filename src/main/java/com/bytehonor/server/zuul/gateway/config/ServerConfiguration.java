@@ -8,10 +8,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import com.bytehonor.server.zuul.gateway.filter.AccessZuulFilter;
+
 @Configuration
-public class CorsConfig {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(CorsConfig.class);
+public class ServerConfiguration {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ServerConfiguration.class);
 
     @Bean
     public CorsFilter corsFilter() {
@@ -25,5 +27,10 @@ public class CorsConfig {
         config.addAllowedMethod("*");// 允许提交请求的方法，*表示全部允许
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
+    }
+
+    @Bean
+    public AccessZuulFilter accessZuulFilter() {
+        return new AccessZuulFilter();
     }
 }
