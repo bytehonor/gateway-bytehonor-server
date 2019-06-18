@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.StringUtils;
 
 import com.bytehonor.sdk.center.user.constant.UserHeaderKey;
 import com.bytehonor.sdk.center.user.model.AccessToken;
@@ -36,19 +35,11 @@ public class AccessZuulFilter extends ZuulFilter {
     @Value("${server.port}")
     private String serverPort;
 
-    private static String TERMINAL_NAME = null;
-
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest request = ctx.getRequest();
         String fromTerminal = TerminalUtils.getFromTerminal(request);
-        if (StringUtils.isEmpty(fromTerminal)) {
-            if (TERMINAL_NAME == null) {
-                TERMINAL_NAME = applicationName + ":" + serverPort;
-            }
-            fromTerminal = TERMINAL_NAME;
-        }
         String fromIp = TerminalUtils.getFromIp(request);
         ctx.addZuulRequestHeader(HeaderKey.X_FROM_TERMINAL, fromTerminal);
         ctx.addZuulRequestHeader(HeaderKey.X_REAL_IP, fromIp);
