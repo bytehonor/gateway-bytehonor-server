@@ -31,7 +31,7 @@ ext {
 
 dependencies {
     implementation('com.bytehonor.sdk:user-center-sdk:0.1.4')
-    implementation('com.bytehonor.sdk:spring-server-sdk:3.6.0')
+    implementation('com.bytehonor.sdk:spring-server-sdk:3.6.1')
     implementation('org.apache.commons:commons-pool2:2.6.2')
     implementation('org.springframework.boot:spring-boot-starter-web')
 	implementation('org.springframework.boot:spring-boot-starter-actuator')
