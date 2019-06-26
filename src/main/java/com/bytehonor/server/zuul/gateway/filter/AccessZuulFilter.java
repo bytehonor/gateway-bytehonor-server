@@ -6,10 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 
 import com.bytehonor.sdk.center.user.constant.UserHeaderKey;
-import com.bytehonor.sdk.center.user.model.AccessToken;
-import com.bytehonor.sdk.center.user.service.AccessTokenValidateService;
+import com.bytehonor.sdk.center.user.service.AccessTokenCacheService;
 import com.bytehonor.sdk.center.user.util.AccessTokenUtils;
 import com.bytehonor.sdk.center.user.util.UserPassportUtils;
 import com.bytehonor.sdk.protocol.common.constant.HeaderKey;
@@ -27,7 +27,7 @@ public class AccessZuulFilter extends ZuulFilter {
     private static final Gson GSON = new Gson();
 
     @Autowired
-    private AccessTokenValidateService accessTokenValidateService;
+    private AccessTokenCacheService accessTokenCacheService;
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -39,6 +39,7 @@ public class AccessZuulFilter extends ZuulFilter {
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest request = ctx.getRequest();
+        String fromUuid = TerminalUtils.getFromUuid(request);
         String fromTerminal = TerminalUtils.getFromTerminal(request);
         String fromIp = TerminalUtils.getFromIp(request);
         ctx.addZuulRequestHeader(HeaderKey.X_FROM_TERMINAL, fromTerminal);
@@ -49,30 +50,28 @@ public class AccessZuulFilter extends ZuulFilter {
             LOG.info("L1. {} {} {} {}", fromTerminal, fromIp, method, requestURI);
             return null;
         }
-        AccessToken accessToken = null;
-        try {
-            accessToken = AccessTokenUtils.build(request, fromTerminal);
-        } catch (Exception e) {
-            processAuthFail(ctx, e.getMessage());
-            return null;
-        }
 
-        if (accessToken.getDebug()) {
+        if ("true".equals(request.getParameter("debug"))) {
             LOG.info("L2. {} {} {} {}", fromTerminal, fromIp, method, requestURI);
             return null;
         }
 
-        String up = UserPassportUtils.toString(accessToken.getRoleKey(), accessToken.getGuid(), fromTerminal, fromIp);
+        String token = AccessTokenUtils.prase(request, fromTerminal);
+        if (StringUtils.isEmpty(token)) {
+            processAuthFail(ctx, "token invalid!");
+            return null;
+        }
+
+        String up = UserPassportUtils.toString(fromUuid, fromTerminal, fromIp);
         ctx.addZuulRequestHeader(UserHeaderKey.X_USER_PASSPORT, up);
 
         if (LOG.isInfoEnabled()) {
-            LOG.info("L3. {} {} {} {}, USER:{}-{}", fromTerminal, fromIp, method, requestURI, accessToken.getRoleKey(),
-                    accessToken.getGuid());
+            LOG.info("L3. {} {} {} {}, USER:{}", fromTerminal, fromIp, method, requestURI, fromUuid);
         }
 
         boolean isOk = false;
         try {
-            isOk = accessTokenValidateService.isEffective(accessToken);
+            isOk = accessTokenCacheService.isEffective(fromTerminal, token);
         } catch (Exception e) {
             isOk = false;
             LOG.error("check failed, error:{}", e.getMessage());
@@ -94,49 +93,6 @@ public class AccessZuulFilter extends ZuulFilter {
         body.setData(message);
         ctx.setResponseBody(GSON.toJson(body));
     }
-
-    // private TokenExpireVO getTokenExpire(RequestContext ctx, UserToken userToken,
-    // String fromTerminal) {
-    // String user = userToken.getGuid();
-    // String token = userToken.getToken();
-    // Integer type = userToken.getRoleKey();
-    //
-    // if (UserTypeEnum.WECHAT.getCode() == type) {
-    // ctx.addZuulRequestHeader(HeaderAuthKey.WECHAT_USER_OPENID, user);
-    // JsonResponse<TokenExpireVO> result =
-    // userCenterRemoteService.getWechatTokenExpire(user, token);
-    // if (result.getCode() != 0) {
-    // LOG.error("Wechat Expire result code:{}, message:{}", result.getCode(),
-    // result.getMessage());
-    // throw new RuntimeException("WechatToken invalid");
-    // }
-    // return result.getData();
-    // } else if (UserTypeEnum.MERCHANT.getCode() == type) {
-    // ctx.addZuulRequestHeader(HeaderAuthKey.MERCHANT_USER_UNID, user);
-    // JsonResponse<TokenExpireVO> result =
-    // userCenterRemoteService.getMerchantTokenExpire(user, token, fromTerminal);
-    // if (result.getCode() != 0) {
-    // LOG.error("Merchant Expire result from:{}, code:{}, message:{}",
-    // fromTerminal, result.getCode(),
-    // result.getMessage());
-    // throw new RuntimeException("StoreToken invalid");
-    // }
-    // return result.getData();
-    // } else if (UserTypeEnum.ADMIN.getCode() == type) {
-    // ctx.addZuulRequestHeader(HeaderAuthKey.ADMIN_USER_UNID, user);
-    // JsonResponse<TokenExpireVO> result =
-    // userCenterRemoteService.getAdminTokenExpire(user, token, fromTerminal);
-    // if (result.getCode() != 0) {
-    // LOG.error("Admin Expire result from:{}, code:{}, message:{}", fromTerminal,
-    // result.getCode(),
-    // result.getMessage());
-    // throw new RuntimeException("AdminToken invalid");
-    // }
-    // return result.getData();
-    // } else {
-    // throw new RuntimeException("Authentication type invalid");
-    // }
-    // }
 
     @Override
     public boolean shouldFilter() {
