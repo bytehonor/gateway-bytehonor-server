@@ -42,8 +42,10 @@ public class AccessZuulFilter extends ZuulFilter {
         String fromUuid = TerminalUtils.getFromUuid(request);
         String fromTerminal = TerminalUtils.getFromTerminal(request);
         String fromIp = TerminalUtils.getFromIp(request);
+        // 三个key透传
         ctx.addZuulRequestHeader(HeaderKey.X_FROM_TERMINAL, fromTerminal);
         ctx.addZuulRequestHeader(HeaderKey.X_REAL_IP, fromIp);
+        ctx.addZuulRequestHeader(HeaderKey.X_FROM_UUID, fromUuid);
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
         if ("GET".equalsIgnoreCase(method) || PassUrl.isPass(requestURI)) {
