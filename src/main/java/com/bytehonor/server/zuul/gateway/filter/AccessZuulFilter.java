@@ -58,7 +58,12 @@ public class AccessZuulFilter extends ZuulFilter {
             return null;
         }
 
-        String token = AccessTokenUtils.prase(request, fromTerminal);
+        String token = null;
+        try {
+            token = AccessTokenUtils.prase(request, fromTerminal);
+        } catch (Exception e) {
+            LOG.error("prase", e);
+        }
         if (StringUtils.isEmpty(token)) {
             processAuthFail(ctx, "token invalid!");
             return null;
