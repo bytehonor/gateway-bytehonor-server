@@ -10,6 +10,7 @@ public class PassUrl {
 	static {
 		URLS.add("/cb1");
 		URLS.add("/uc1/admin/tokens");
+		URLS.add("/uc1/admin/users/password");
 		URLS.add("/user-proxy/wechat/tokens");
 		URLS.add("/user-proxy/merchant/tokens");
 		URLS.add("/user-proxy/merchant/users/password");
