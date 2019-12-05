@@ -8,13 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
+import com.bytehonor.sdk.basic.define.constant.HeaderKey;
+import com.bytehonor.sdk.basic.define.result.JsonResponse;
+import com.bytehonor.sdk.basic.server.util.TerminalUtils;
 import com.bytehonor.sdk.center.user.constant.UserHeaderKey;
 import com.bytehonor.sdk.center.user.service.AccessTokenCacheService;
 import com.bytehonor.sdk.center.user.util.AccessTokenUtils;
 import com.bytehonor.sdk.center.user.util.UserPassportUtils;
-import com.bytehonor.sdk.protocol.common.constant.HeaderKey;
-import com.bytehonor.sdk.protocol.common.result.JsonResponse;
-import com.bytehonor.sdk.server.spring.util.TerminalUtils;
 import com.bytehonor.server.zuul.gateway.constant.PassUrl;
 import com.google.gson.Gson;
 import com.netflix.zuul.ZuulFilter;
