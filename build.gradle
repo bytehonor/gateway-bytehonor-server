@@ -1,46 +1,49 @@
 plugins {
-	id 'org.springframework.boot' version '2.2.1.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-	id 'java'
+    id 'org.springframework.boot' version '2.2.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
 }
 
 group = 'com.bytehonor.server'
-version = '1.0.0-SNAPSHOT'
+version = '1.1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 configurations {
-	developmentOnly
-	runtimeClasspath {
-		extendsFrom developmentOnly
-	}
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
-	maven { url "http://maven.huajietaojin.cn/repository/bytehonor-releases/" }
+    mavenCentral()
+    maven { url "http://maven.huajietaojin.cn/repository/bytehonor-releases/" }
 }
 
 ext {
-    set('springCloudVersion', "Hoxton.RELEASE")
+    set('springCloudVersion', "Hoxton.SR3")
 }
 
 dependencies {
-    implementation('com.bytehonor.sdk:server-basic-sdk:4.1.5')
-    implementation('com.bytehonor.sdk:user-center-sdk:0.2.3')
+    implementation('com.bytehonor.sdk:server-basic-sdk:4.4.1')
+    implementation('com.bytehonor.sdk:user-center-sdk:0.3.0')
     implementation('org.apache.commons:commons-pool2:2.6.2')
     implementation('org.springframework.boot:spring-boot-starter-web')
-	implementation('org.springframework.boot:spring-boot-starter-actuator')
-	implementation('org.springframework.boot:spring-boot-starter-data-redis')
-	implementation('org.springframework.cloud:spring-cloud-starter-netflix-zuul')
-	implementation('org.springframework.cloud:spring-cloud-starter-consul-discovery')
-	implementation('net.logstash.logback:logstash-logback-encoder:5.3')
-	developmentOnly('org.springframework.boot:spring-boot-devtools')
-	annotationProcessor('org.springframework.boot:spring-boot-configuration-processor')
-	testImplementation('org.springframework.boot:spring-boot-starter-test')
+    implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation('org.springframework.boot:spring-boot-starter-data-redis')
+    implementation('org.springframework.cloud:spring-cloud-starter-netflix-zuul')
+    implementation('org.springframework.cloud:spring-cloud-starter-consul-discovery')
+    implementation('net.logstash.logback:logstash-logback-encoder:5.3')
+    developmentOnly('org.springframework.boot:spring-boot-devtools')
+    annotationProcessor('org.springframework.boot:spring-boot-configuration-processor')
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-	}
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
